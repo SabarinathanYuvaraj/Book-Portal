@@ -1,0 +1,1 @@
+This javascript file is mini version of book store application
