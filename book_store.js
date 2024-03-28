@@ -113,7 +113,8 @@ let cart = [];
 
 let choice = true;
 while(choice){
-    let input = readLine.questionInt("Please select option from the below operations:\n1. view available books\n2. add book to cart\n3. show cart\n4. exit\nenter your choice: ");
+      console.log("Please select option from the below operations:\n1. view available books\n2. add book to cart\n3. show cart\n4. update cart\n5. exit ");
+      let input = readLine.question("Enter your choice : ")
     if(input == 1){
         showAvailableBooks();
     }
@@ -124,6 +125,9 @@ while(choice){
         showCart();
     }
     if(input == 4){
+        updateCart()
+    }
+    if(input == 5){
         console.log("\nThankyou for visiting Our BookStore \n");
         choice = false;
     }
@@ -190,7 +194,7 @@ function showAvailableBooks(){
 function showCart(){
 
     if(cart.length == 0){
-        console.log("cart is empty, add items first\n");
+        console.log("\ncart is empty, add items first\n");
         return;
     }
     
@@ -207,3 +211,108 @@ function showCart(){
     console.log(`\nTotal cart value is ${totalCartValue}\n`);
 }
 
+
+function updateCart(){
+    if(cart.length ==0 ){
+        console.log("\nPlease add some books in the cart\n");
+        return
+     }
+    console.log("please select one operation below: \n1. removeItems from cart\n2. update the quantity in the cart\n3. return to the main menu\n")
+    const userInput = readLine.question("Enter your choice : ")
+    if(userInput == 1){
+        removeItems()
+    }
+    
+    else if(userInput == 2){
+        updateQuantity()
+    }
+    
+    else if(userInput == 3){
+        return
+    }
+ 
+}
+
+function removeItems(){
+ const userBookId = readLine.questionInt(`enter the book id between ${bookStore[0].Book_ID} and ${bookStore[bookStore.length-1].Book_ID}: \n`);
+ let removedQuantity = 0
+
+
+ 
+for( let book of cart ){
+    if(book.Book_ID == userBookId){
+        console.log("\nplease select the operation below : \n1. remove entire book from cart\n2. remove some quantity of book");
+        const userInput = readLine.question("Enter your choice : ")
+        
+        if(userInput == 1){
+            let bookIndex = cart.indexOf(book)
+            removedQuantity = book.Quantity
+            cart.splice(bookIndex,1)
+            console.log("\n the book is removed from the cart\n");
+
+        }
+        if(userInput == 2){
+            let bookQuantity = readLine.question("Please enter the quantity of book : ")
+            if(book.Quantity<bookQuantity){
+                console.log(`\nsorry you cannot remove the books, because available quantity is only ${book.Quantity}\n`)
+            }
+            else if(book.Quantity == bookQuantity){
+                let bookIndex = cart.indexOf(book)
+                removedQuantity = book.Quantity
+                cart.splice(bookIndex,1)
+                console.log(`\n ${bookQuantity}books from ${book.Book_ID} book_id is removed from the cart\n`);
+            }
+            else{
+                book.Quantity -= bookQuantity
+                removedQuantity = parseInt(bookQuantity)
+                console.log(`\n ${bookQuantity}books from ${book.Book_ID} book_id is removed from the cart\n`);
+            }
+        }
+ 
+        }
+        else{
+            console.log("\nPlease enter the correct book_id \n ");
+            removeItems()
+    }
+}
+
+        for(let obj of bookStore){
+            if(obj.Book_ID == userBookId){
+                if(obj.Quantity == 0){
+                    obj.Status = "available"
+                    obj.Quantity += removedQuantity
+                }
+                else if(obj.Quantity>0){
+                    obj.Quantity += removedQuantity
+                }
+            }
+        }
+
+}
+
+function updateQuantity(){
+    const userBookId = readLine.questionInt(`enter the book id between ${bookStore[0].Book_ID} and ${bookStore[bookStore.length-1].Book_ID}: \n`);
+
+    let cartBook = cart.find(book => book.Book_ID == userBookId)
+    if(cartBook){
+        let bookQuantity = readLine.question("Please enter the quantity of book : ")
+        if(bookQuantity<0){
+            console.log("\n the book Quantity must be positive");
+        }
+        let mainBook = bookStore.find(book => book.Book_ID == userBookId)
+        if(mainBook.Quantity < bookQuantity){
+            console.log(`\nsorry you cannot add the books, because available quantity is only ${mainBook.Quantity}\n`)
+        }
+        if(mainBook.Quantity >= bookQuantity){
+            cartBook.Quantity += parseInt(bookQuantity)
+            mainBook.Quantity -= parseInt(bookQuantity)
+            console.log("\n the book added to the cart \n");
+        }
+        if(mainBook.Quantity == 0){
+            mainBook.Status = "unavailable"
+        }
+    }
+    else{
+        console.log("\n Please enter the valid book_id");
+    }
+}
